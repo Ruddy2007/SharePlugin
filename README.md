@@ -1,6 +1,6 @@
 ﻿## Share Plugin for Xamarin and Windows
 
-Simple way to share a message or link, copy text to clipboard, or open a browser in any Xamarin or Windows app.
+Simple way to share a message, image (iOS & Android Only) or link, copy text to clipboard, or open a browser in any Xamarin or Windows app.
 
 ### Documentation
 
