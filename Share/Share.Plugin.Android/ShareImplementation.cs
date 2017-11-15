@@ -6,6 +6,8 @@ using Plugin.Share.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Android.Graphics;
+using System.IO;
 
 namespace Plugin.Share
 {
@@ -83,6 +85,29 @@ namespace Plugin.Share
                 intent.PutExtra(Intent.ExtraText, string.Join(Environment.NewLine, items));
                 if (message.Title != null)
                     intent.PutExtra(Intent.ExtraSubject, message.Title);
+                if (message.Url != null)
+                    intent.PutExtra(Intent.ExtraText, message.Text);
+                if (message.Image != null)
+                {
+                    intent.SetType("*/*");
+
+                    // Paths
+                    var fileTypeDir = Android.App.Application.Context.GetExternalFilesDir(Android.OS.Environment.DirectoryPictures);
+                    var filePath = new Java.IO.File(fileTypeDir, message.Image);
+                    var tempFilePath = new Java.IO.File(fileTypeDir, "NoteImage.jpg");
+
+                    // Always delete it before we reuse
+                    File.Delete(tempFilePath.AbsolutePath);
+
+                    // Convert
+                    Bitmap bitmap = BitmapFactory.DecodeFile(filePath.AbsolutePath);
+                    using (var os = new System.IO.FileStream(tempFilePath.AbsolutePath, System.IO.FileMode.Create))
+                    {
+                        bitmap.Compress(Bitmap.CompressFormat.Jpeg, message.ImageQuality, os);
+                    }
+
+                    intent.PutExtra(Intent.ExtraStream, Android.Net.Uri.FromFile(tempFilePath));
+                }
 
                 var chooserIntent = Intent.CreateChooser(intent, options?.ChooserTitle);
                 chooserIntent.SetFlags(ActivityFlags.ClearTop);

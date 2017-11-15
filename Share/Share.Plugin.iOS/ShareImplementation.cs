@@ -57,7 +57,7 @@ namespace Plugin.Share
                     {
                         sfViewController.PopoverPresentationController.SourceView = vc.View;
                     }
-                    
+
                     await vc.PresentViewControllerAsync(sfViewController, true);
                 }
                 else
@@ -106,6 +106,13 @@ namespace Plugin.Share
                     items.Add(new ShareActivityItemSource(new NSString(message.Text), message.Title));
                 if (message.Url != null)
                     items.Add(new ShareActivityItemSource(NSUrl.FromString(message.Url), message.Title));
+                if (message.Image != null)
+                {
+                    string localFolder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
+                    string localPath = System.IO.Path.Combine(localFolder, message.Image);
+                    UIImage source = UIImage.FromFile(localPath);
+                    items.Add(new ShareActivityItemSource(source, message.Title));
+                }
 
                 // create activity controller
                 var activityController = new UIActivityViewController(items.ToArray(), null);
@@ -144,42 +151,42 @@ namespace Plugin.Share
             }
         }
 
-		/// <summary>
-		/// Gets the visible view controller.
-		/// </summary>
-		/// <returns>The visible view controller.</returns>
-		UIViewController GetVisibleViewController()
-		{
-			UIViewController viewController = null;
-			var window = UIApplication.SharedApplication.KeyWindow;
+        /// <summary>
+        /// Gets the visible view controller.
+        /// </summary>
+        /// <returns>The visible view controller.</returns>
+        UIViewController GetVisibleViewController()
+        {
+            UIViewController viewController = null;
+            var window = UIApplication.SharedApplication.KeyWindow;
 
 
-			if (window != null && window.WindowLevel == UIWindowLevel.Normal)
-				viewController = window.RootViewController;
+            if (window != null && window.WindowLevel == UIWindowLevel.Normal)
+                viewController = window.RootViewController;
 
-			if (viewController == null)
-			{
-				window = UIApplication.SharedApplication.Windows.OrderByDescending(w => w.WindowLevel).FirstOrDefault(w => w.RootViewController != null && w.WindowLevel == UIWindowLevel.Normal);
-				if (window == null)
-					throw new InvalidOperationException("Could not find current view controller");
-				else
-					viewController = window.RootViewController;
-			}
+            if (viewController == null)
+            {
+                window = UIApplication.SharedApplication.Windows.OrderByDescending(w => w.WindowLevel).FirstOrDefault(w => w.RootViewController != null && w.WindowLevel == UIWindowLevel.Normal);
+                if (window == null)
+                    throw new InvalidOperationException("Could not find current view controller");
+                else
+                    viewController = window.RootViewController;
+            }
 
-			while (viewController.PresentedViewController != null)
-				viewController = viewController.PresentedViewController;
+            while (viewController.PresentedViewController != null)
+                viewController = viewController.PresentedViewController;
 
 
-			return viewController;
-		}
+            return viewController;
+        }
 
-		/// <summary>
-		/// Converts the <see cref="ShareUIActivityType"/> to its native representation.
-		/// Returns null if the activity type is invalid or not supported on the current platform.
-		/// </summary>
-		/// <param name="type">The activity type</param>
-		/// <returns>The native representation of the activity type or null</returns>
-		NSString GetUIActivityType(ShareUIActivityType type)
+        /// <summary>
+        /// Converts the <see cref="ShareUIActivityType"/> to its native representation.
+        /// Returns null if the activity type is invalid or not supported on the current platform.
+        /// </summary>
+        /// <param name="type">The activity type</param>
+        /// <returns>The native representation of the activity type or null</returns>
+        NSString GetUIActivityType(ShareUIActivityType type)
         {
             switch (type)
             {

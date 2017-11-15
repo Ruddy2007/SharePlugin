@@ -25,5 +25,15 @@ namespace Plugin.Share.Abstractions
         /// Gets or sets the link to include with the message.
         /// </summary>
         public string Url { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image to include with the message.
+        /// </summary>
+        public string Image { get; set; }
+
+        /// <summary>
+        /// Gets or sets the image quality 1 - 100, higher is better (Android Only).
+        /// </summary>
+        public int ImageQuality { get; set; } = 100;
     }
 }
